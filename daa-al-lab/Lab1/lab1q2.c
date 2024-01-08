@@ -25,6 +25,7 @@ Node *createNode(int x)
 Graph *createGraph(int v)
 {
     Graph *temp = (Graph *)calloc(1, sizeof(Graph));
+    temp->vertices = v;
 
     // Initializing the adjacency matrix
     temp->AdjMat = (int **)calloc(v, sizeof(int *));
@@ -59,14 +60,15 @@ void printList(Graph *graph)
     for (int v = 0; v < graph->vertices; v++)
     {
         Node *temp = graph->AdjLists[v];
-        printf("\n Vertex %d\n: ", v);
-        while (temp)
+        printf("\n Vertex %d: ", v);
+        while (temp->next != NULL)
         {
             printf("%d -> ", temp->data);
             temp = temp->next;
         }
-        printf("\n");
+        printf("%d", temp->data);
     }
+    printf("\n");
 }
 
 void printGraph(Graph *graph)
@@ -78,6 +80,7 @@ void printGraph(Graph *graph)
         {
             printf("%d  ", graph->AdjMat[v][w]);
         }
+        printf("\n");
     }
     printf("\n");
 }
