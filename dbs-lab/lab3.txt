@@ -1,0 +1,151 @@
+1. Find courses that ran in Fall 2009 or in Spring 2010
+> (select course_id from takes where year=2009 and semester='Fall') union (select course_id from takes where year=2010 and semester='Spring');
+
+COURSE_I
+--------
+CS-101
+CS-315
+CS-319
+CS-347
+FIN-201
+HIS-351
+MU-199
+PHY-101
+
+8 rows selected.
+
+2. Find courses that ran in Fall 2009 and in spring 2010
+> (select course_id from takes where year=2009 and semester='Fall') intersect (select course_id from takes where year=2010 and semester='Spring');
+
+COURSE_I
+--------
+CS-101
+
+
+3. Find courses that ran in Fall 2009 but not in Spring 2010
+> (select course_id from takes where year=2009 and semester='Fall') minus (select course_id from takes where year=2010 and semester='Spring');
+
+COURSE_I
+--------
+CS-347
+PHY-101
+
+4. Find the name of the course for which none of the students registered.
+> (select title from course) minus (select c.title from course c, takes t where t.course_id = c.course_id);
+
+TITLE
+--------------------------------------------------
+Computational Biology
+
+
+5. Find courses offered in Fall 2009 and in Spring 2010.
+> select distinct(course_id) from takes where semester='Fall' and year=2009 and course_id in (select course_id from takes where semester='Spring' and year=2010);
+
+COURSE_I
+--------
+CS-101
+
+
+6. Find the total number of students who have taken course taught by the instructor 
+with ID 10101.
+> select count(distinct(t.id)) from takes t, teaches te where t.course_id = te.course_id and t.sec_id = te.sec_id and t.semester=te.semester and t.year = te.year and te.id in (select teaches.id from teaches where id=10101);
+COUNT(DISTINCT(T.ID))
+---------------------
+                    6
+
+7. Find courses offered in Fall 2009 but not in Spring 2010.
+> select distinct(course_id) from takes where semester='Fall' and year=2009 and course_id not in (select course_id from takes where semester='Spring' and year=2010);
+
+COURSE_I
+--------
+CS-347
+PHY-101
+
+8. Find the names of all students whose name is same as the instructor’s name.
+> select name from student where name in (select name from instructor);
+
+NAME
+--------------------
+Brandt
+
+9. Find names of instructors with salary greater than that of some (at least one) instructor
+in the Biology department.
+> NAME
+--------------------
+Einstein
+Brandt
+Wu
+Gold
+Kim
+Singh
+Katz
+
+7 rows selected.
+
+10. Find the names of all instructors whose salary is greater than the salary of all 
+instructors in the Biology department.
+> select name from instructor where salary >all(select salary from instructor where dept_name='Biology');
+
+NAME
+--------------------
+Katz
+Singh
+Kim
+Gold
+Wu
+Brandt
+Einstein
+
+7 rows selected.
+
+11. Find the departments that have the highest average salary.
+> select dept_name, avg(salary) as avgsal from instructor group by dept_name having(avg(salary) >= all(select avg(salary) from instructor group by dept_name));
+
+DEPT_NAME                AVGSAL
+-------------------- ----------
+Physics                   91000
+
+
+12. Find the names of those departments whose budget is lesser than the average salary 
+of all instructors.
+> select dept_name from department where budget <all(select avg(salary) from instructor);
+
+DEPT_NAME
+--------------------
+History
+Physics
+
+13. Find all courses taught in both the Fall 2009 semester and in the Spring 2010 semester.
+> SELECT course_id, title
+  2  FROM course
+  3  WHERE EXISTS (
+  4      SELECT *
+  5      FROM teaches T1
+  6      WHERE T1.course_id = course.course_id
+  7      AND T1.semester = 'Fall'
+  8      AND T1.year = 2009
+  9  )
+ 10  AND EXISTS (
+ 11      SELECT *
+ 12      FROM teaches T2
+ 13      WHERE T2.course_id = course.course_id
+ 14      AND T2.semester = 'Spring'
+ 15      AND T2.year = 2010
+ 16  );
+
+COURSE_I TITLE
+-------- --------------------------------------------------
+CS-101   Intro. to Computer Science
+
+
+14. Find all students who have taken all courses offered in the Biology department.
+> select distinct(t.id) from takes t, course c1 where t.course_id=c1.course_id and exists(select t.id from takes, course c2 where c1.course_id=c2.course_id and takes.course_id = c2.course_id and c2.dept_name='Biology');
+
+ID
+-----
+98988
+
+
+
+15. Find all courses that were offered at most once in 2009.
+
