@@ -148,4 +148,72 @@ ID
 
 
 15. Find all courses that were offered at most once in 2009.
+> select c.title from course c where 1>=(select count(t.course_id) from takes t where c.course_id = t.course_id and t.year = 2009);
+
+TITLE
+--------------------------------------------------
+Intro. to Biology
+Genetics
+Computational Biology
+Robotics
+Image Processing
+Intro. to Digital Systems
+Investment Banking
+World History
+Music Video Production
+Physical Principles
+
+10 rows selected.
+
+
+16. Find all the students who have opted at least two courses offered by CSE department.
+> select s.name from student s where 2<=(select count(t.course_id) from takes t, course c where t.id = s.id and c.dept_name = 'Comp. Sci.' and c.course_id = t.course_id group by s.name);
+
+NAME
+--------------------
+Zhang
+Shankar
+Levy
+Williams
+Brown
+Bourikas
+
+6 rows selected.
+
+
+
+17. Find the average instructors salary of those departments where the average salary is 
+greater than 42000
+> select dept_name, avgsal from (select avg(salary) AVGSAL, dept_name from instructor group by dept_name) where avgsal > 42000;
+
+DEPT_NAME                AVGSAL
+-------------------- ----------
+Elec. Eng.                80000
+Physics                   91000
+Comp. Sci.           77333.3333
+Finance                   85000
+Biology                   72000
+History                   61000
+
+6 rows selected.
+
+18.  Create a view all_courses consisting of course sections offered by Physics 
+department in the Fall 2009, with the building and room number of each section.
+> create view all_courses as (select s.course_id, sec_id, building, room_number from section s, course c where s.semester='Fall' and s.year=2009 and c.course_id = s.course_id and c.dept_name = 'Physics');
+
+View created.
+
+
+19. Select all the courses from all_courses view.
+> select course_id from all_courses;
+
+COURSE_I
+--------
+PHY-101
+
+20.Create a view department_total_salary consisting of department name and total 
+salary of that department.
+> create view department_total_salary as (select dept_name, sum(salary) TOTSAL from instructor group by dept_name);
+
+View created.
 
