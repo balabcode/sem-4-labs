@@ -1,0 +1,189 @@
+1. Find the number of students in each course.
+> select count(s.id) from student s, course c, takes t where t.id = s.id and c.course_id = t.course_id group by c.title;
+
+COUNT(S.ID)
+-----------
+          2
+          1
+          1
+          1
+          1
+          1
+          1
+          2
+          2
+          1
+          7
+
+COUNT(S.ID)
+-----------
+          2
+
+12 rows selected.
+
+2. Find those departments where the number of students is atleast the avg number of students across all the departments
+> select dept_name, count(id) from student group by dept_name having (count(id) > (select avg(count(id)) from student group by dept_name));
+
+DEPT_NAME             COUNT(ID)
+-------------------- ----------
+Elec. Eng.                    2
+Physics                       3
+Comp. Sci.                    4
+
+3. Find the total number of courses in each department.
+> select count(course_id) from course group by dept_name;
+
+COUNT(COURSE_ID)
+----------------
+               1
+               1
+               5
+               1
+               3
+               1
+               1
+
+7 rows selected.
+
+4. Find the names and average salaries of all departments whose average salary is 
+greater than 42000
+> select dept_name, avg(salary) from instructor group by dept_name having (avg(salary) > 42000);
+
+DEPT_NAME            AVG(SALARY)
+-------------------- -----------
+Elec. Eng.                 80000
+Physics                    91000
+Comp. Sci.            77333.3333
+Finance                    85000
+Biology                    72000
+History                    61000
+
+6 rows selected.
+
+
+5. Find the enrollment of each section that was offered in Spring 2009.
+> select count(id) from takes where semester='Spring' and year=2009 group by sec_id, course_id;
+
+ COUNT(ID)
+----------
+         1
+         2
+
+
+6. List all the courses with prerequisite courses, then display course id in increasing 
+order.
+> select c.title, c.course_id from course c, prereq p where c.course_id = p.course_id order by c.course_id asc;
+
+TITLE                                              COURSE_I
+-------------------------------------------------- --------
+Genetics                                           BIO-301
+Computational Biology                              BIO-399
+Game Design                                        CS-190
+Robotics                                           CS-315
+Image Processing                                   CS-319
+Database System Concepts                           CS-347
+Intro. to Digital Systems                          EE-181
+
+7 rows selected.
+
+7. Display the details of instructors sorting the salary in decreasing order.
+> select * from instructor order by salary desc;
+
+ID    NAME                 DEPT_NAME                SALARY
+----- -------------------- -------------------- ----------
+22222 Einstein             Physics                   95000
+83821 Brandt               Comp. Sci.                92000
+12121 Wu                   Finance                   90000
+33456 Gold                 Physics                   87000
+98345 Kim                  Elec. Eng.                80000
+76543 Singh                Finance                   80000
+45565 Katz                 Comp. Sci.                75000
+76766 Crick                Biology                   72000
+10101 Srinivasan           Comp. Sci.                65000
+58583 Califieri            History                   62000
+32343 El Said              History                   60000
+
+ID    NAME                 DEPT_NAME                SALARY
+----- -------------------- -------------------- ----------
+15151 Mozart               Music                     40000
+
+12 rows selected.
+
+8. Find the maximum total salary across the departments.
+> select max(SUMQ.SALSUM) from (select sum(salary) SALSUM, dept_name DNAME from instructor group by dept_name) SUMQ;
+
+MAX(SUMQ.SALSUM)
+----------------
+          232000
+
+9. Find the average instructors’ salaries of those departments where the average 
+salary is greater than 42000.
+> select GRPINST.AVGSAL from (select avg(salary) AVGSAL from instructor group by dept_name) GRPINST where GRPINST.AVGSAL > 42000;
+
+    AVGSAL
+----------
+     80000
+     91000
+77333.3333
+     85000
+     72000
+     61000
+
+6 rows selected.
+
+
+10. Find the sections that had the maximum enrolment in Spring 2010
+> select course_id, sec_id, enroll from (select course_id, sec_id, count(ID) enroll from takes where semester='Spring' and year=2010 group by course_id, sec_id, semester, year) enrollment where enroll>= (select max(count(ID)) from takes where semester='Spring' and year=2010 group by course_id, sec_id, semester, year);
+
+COURSE_I SEC_ID       ENROLL
+-------- -------- ----------
+CS-315   1                 2
+
+
+11. Find the names of all instructors who teach all students that belong to ‘CSE’ 
+department.
+> select distinct(INAME) from (select s.name SNAME, i.name INAME from student s, takes t, teaches te, instructor i where te.id = i.id and t.id = s.id and te.course_id = t.course_id and te.sec_id = t.sec_id and t.semester = te.semester and t.year = te.year and s.dept_name = 'Comp. Sci.');
+
+INAME
+--------------------
+Srinivasan
+Brandt
+
+
+12. Find the average salary of those department where the average salary is greater 
+than 50000 and total number of instructors in the department are more than 5.
+> select dept_name, AVGSAL from (select avg(salary) AVGSAL, count(id) NUM, dept_name from instructor group by dept_name) Q where AVGSAL > 50000 and NUM >2;
+
+DEPT_NAME                AVGSAL
+-------------------- ----------
+Comp. Sci.           77333.3333
+
+
+13. Find all departments with the maximum budget.
+> with maxb(val) as (select max(budget) from department) select dept_name, budget from department d, maxb where d.budget = val;
+
+DEPT_NAME                BUDGET
+-------------------- ----------
+Finance                  120000
+
+14.  Find all departments where the total salary is greater than the average of the total 
+salary at all departments
+> with DEPTTOTSAL(totsal, dept) as (select sum(salary), dept_name from instructor group by dept_name) select dept, totsal from depttotsal where totsal >=(select avg(totsal) from depttotsal);
+
+DEPT                     TOTSAL
+-------------------- ----------
+Physics                  182000
+Comp. Sci.               232000
+Finance                  170000
+
+15. Transfer all the students from CSE department to IT department
+> savepoint dbs2401;
+> update student set dept_name = 'Comp. Sci.' where dept_name='Elec. Eng.';
+
+2 rows updated.
+
+16. Increase salaries of instructors whose salary is over $100,000 by 3%, and all 
+others receive a 5% raise
+> update instructor set salary = (case when salary > 100000 then 1.03*salary else 1.05*salary end);
+
+12 rows updated.
