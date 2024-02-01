@@ -1,16 +1,13 @@
 class Graph:
     def __init__(self):
         self.edges = {}
-        self.indegree = {}
 
     def addNodes(self, nodes):
         for node in nodes:
             self.edges[node] = []
-            self.indegree[node] = 0
 
     def addEdge(self, node1, node2):
         self.edges[node1].append(node2)
-        self.indegree[node2] += 1
 
     def getSub(self, node):
         return self.edges[node]
@@ -38,13 +35,15 @@ class Graph:
 
 g = Graph()
 
-g.addNodes([0,1,2,3])
+g.addNodes([0,1,2,3,4,5])
 
-g.addEdge(0,1)
-g.addEdge(0,2)
-g.addEdge(1,2)
-g.addEdge(2,0)
+g.addEdge(3,1)
 g.addEdge(2,3)
-g.addEdge(3,3)
+g.addEdge(5,2)
+g.addEdge(5,0)
+g.addEdge(4,0)
+g.addEdge(4,1)
+
+print(g.toposort())
 
 g.printList()
