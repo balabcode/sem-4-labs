@@ -22,11 +22,13 @@ class Graph:
         queue = []
         solution = []
 
-        # Find nodes with zero indegree and add them to the queue
+        # Source Removal Method
+        # searching for nodes w 0 indegree and adding to q
         for node in self.edges.keys():
             if self.indegree[node] == 0:
                 queue.append(node)
 
+        # while q is not empty, pop for BFS and then add neighbors into q, check indegree and jazz
         while queue:
             current_node = queue.pop(0)
             solution.append(current_node)
@@ -35,7 +37,6 @@ class Graph:
                 self.indegree[neighbor] -= 1
                 if self.indegree[neighbor] == 0:
                     queue.append(neighbor)
-
         print(solution)
 
 g = Graph()

@@ -21,8 +21,19 @@ class Graph:
                 print(f"{neighbor}", end=' ')
             print()
     
-    def travellingSalesman(self):
-        
+    def travellingSalesman(self, start):
+        queue = [start]
+        path = []
+        visited = set(start)
+        while queue:
+            current = queue.pop(0)
+            path.append(current)
+            for neighbor in self.edges[current]:
+                if(neighbor not in visited):
+                    visited.add(neighbor)
+                    queue.append(neighbor)
+        print(path)
+        return path
 
 g = Graph()
 g.addNodes(['A', 'B', 'C', 'D'])
@@ -39,6 +50,9 @@ g.addEdge('D','A')
 g.addEdge('D','B')
 g.addEdge('D','C')
 g.printList()
+
+
+g.travellingSalesman('A')
 
 
 
