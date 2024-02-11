@@ -124,4 +124,8 @@ int main()
     int *visited = (int *)calloc(g->v, sizeof(int));
     Stack *topo = createStack(10);
     toposort(g, 0, visited, s, topo);
+
+    free(s);
+    free(visited);
+    free(topo);
 }
