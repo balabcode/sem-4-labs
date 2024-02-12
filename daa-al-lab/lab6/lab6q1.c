@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+int opcount = 0;
 
 // Total number of nodes in a BT
 
@@ -46,14 +47,11 @@ Node *makeTheBST(int arr[], int size)
 
 int numberOfNodes(Node *root)
 {
-    static int count = 0;
+    opcount++;
     if (root != NULL)
-    {
-        numberOfNodes(root->left);
-        count++;
-        numberOfNodes(root->right);
-    }
-    return count;
+        return 1 + numberOfNodes(root->left) + numberOfNodes(root->right);
+    else
+        return 0;
 }
 
 int main()
@@ -61,5 +59,6 @@ int main()
     int nums[] = {5, 3, 1, 2, 11, 4, 6, 8, 9, 10, 12, 7};
     Node *root = makeTheBST(nums, sizeof(nums) / sizeof(nums[0]));
     printf("Number of Nodes: %d\n", numberOfNodes(root));
+    printf("Opcount: %d\n", opcount);
     return 0;
 }
