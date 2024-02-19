@@ -3,36 +3,36 @@
 
 #define MAX_NODES 100
 
-typedef struct Node
+typedef struct n
 {
     int data;
-    struct Node *left;
-    struct Node *right;
+    struct n *left;
+    struct n *right;
     int height;
 } Node;
 
-Node *nodeArray[MAX_NODES];
+Node *stack[MAX_NODES];
 int top = -1;
 
 Node *peek()
 {
     if (top == -1)
         return NULL;
-    return nodeArray[top];
+    return stack[top];
 }
 
 void push(Node *node)
 {
     if (top == MAX_NODES - 1)
         return;
-    nodeArray[++top] = node;
+    stack[++top] = node;
 }
 
 Node *pop()
 {
     if (top == -1)
         return NULL;
-    return nodeArray[top--];
+    return stack[top--];
 }
 
 int max(int a, int b)
@@ -92,7 +92,7 @@ int getBalance(Node *node)
     return height(node->left) - height(node->right);
 }
 
-Node *insertNode(Node *root, int data)
+Node *insert(Node *root, int data)
 {
     Node *new_node = newNode(data);
     if (root == NULL)
@@ -181,7 +181,7 @@ int main()
     for (int i = 0; i < n; i++)
     {
         scanf("%d", &temp);
-        root = insertNode(root, temp);
+        root = insert(root, temp);
     }
 
     printf("\nPreorder: ");
@@ -305,7 +305,7 @@ int main()
 //     return height(node->left) - height(node->right);
 // }
 
-// Node *insertNode(Node *root, int data)
+// Node *insert(Node *root, int data)
 // {
 //     Node *new_node = newNode(data); // Renamed from newNode to new_node
 //     if (root == NULL)
@@ -398,7 +398,7 @@ int main()
 //     for (int i = 0; i < n; i++)
 //     {
 //         scanf("%d", &temp);
-//         root = insertNode(root, temp);
+//         root = insert(root, temp);
 //     }
 
 //     printf("\nPreorder: ");
@@ -476,7 +476,7 @@ int main()
 //     return height(node->left) - height(node->right);
 // }
 
-// Node *insertNode(Node *root, int data)
+// Node *insert(Node *root, int data)
 // {
 //     Node *new_node = newNode(data); // Renamed from newNode to new_node
 //     if (root == NULL)
@@ -557,7 +557,7 @@ int main()
 //     for (int i = 0; i < n; i++)
 //     {
 //         scanf("%d", &temp);
-//         root = insertNode(root, temp);
+//         root = insert(root, temp);
 //     }
 
 //     printf("\nPreorder: ");
@@ -635,15 +635,15 @@ int main()
 //     return height(node->left) - height(node->right);
 // }
 
-// Node *insertNode(Node *node, int data)
+// Node *insert(Node *node, int data)
 // {
 //     if (node == NULL)
 //         return newNode(data);
 
 //     if (data < node->data)
-//         node->left = insertNode(node->left, data);
+//         node->left = insert(node->left, data);
 //     else if (data > node->data)
-//         node->right = insertNode(node->right, data);
+//         node->right = insert(node->right, data);
 //     else
 //         return node;
 
@@ -698,7 +698,7 @@ int main()
 //     for (int i = 0; i < n; i++)
 //     {
 //         scanf("%d", &temp);
-//         root = insertNode(root, temp);
+//         root = insert(root, temp);
 //     }
 
 //     printf("\nPreorder: ");
