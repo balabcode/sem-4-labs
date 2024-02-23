@@ -1,7 +1,10 @@
 import random
 
 def gen_board(size=8):
-    return [random.randint(0, size-1) for _ in range(size)]
+    x = [i for i in range(size)]
+    random.shuffle(x)
+    return x
+
 
 def calc_attacks(board):
     attacks = 0
