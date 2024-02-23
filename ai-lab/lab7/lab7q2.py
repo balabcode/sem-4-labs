@@ -16,7 +16,7 @@ class Graph:
     def aStar(self, start, end):
         q = [(self.heu[start], start, [start], 0)]  # [heucost, node, [path], cost]        
         while q:
-            q.sort(key = lambda x: x[0])
+            q.sort(key = lambda x: (x[0], x[3]))
             curr_node = q.pop(0)
             if(curr_node[1] == end):
                 return curr_node
@@ -26,17 +26,13 @@ class Graph:
                               neighbor,
                               curr_node[2] + [neighbor],
                               curr_node[3] + self.edges[curr_node[1]][neighbor]))
-
-def rem(queue):
-    for elem in queue:
-        print()
         
 g = Graph()
 g.addNodes(['S', 'A', 'B', 'C', 'D', 'E', 'F', 'G1', 'G2', 'G3'])
 g.edges = {
     'S': {'A':5, 'B':9, 'D':6},
-    'A': {'G1':9, 'B':3},
-    'B': {'A':2, 'C':1, },
+    'A': {'S':5, 'G1':9, 'B':3},
+    'B': {'A':2, 'C':1},
     'C': {'G2':5, 'S':6, 'F':7},
     'D': {'C':2, 'E':2, 'S':1},
     'E': {'G3':7},
@@ -58,12 +54,5 @@ g.heu = {
     'G3':0
 }
 
-curr_node = g.aStar('S', 'G1')
+curr_node = min(g.aStar('S', 'G1'), g.aStar('S', 'G2'), g.aStar('S', 'G3'))
 print(curr_node)
-
-curr_node = g.aStar('S', 'G2')
-print(curr_node)
-
-curr_node = g.aStar('S', 'G3')
-print(curr_node)
-
