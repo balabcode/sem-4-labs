@@ -46,9 +46,9 @@ void quicksort(int arr[], int first, int last)
 
 int main()
 {
-    // int nums[] = {5, 3, 1, 2, 11, 4, 6, 8, 9, 10, 0, 12, 7};
+    int nums[] = {5, 3, 1, 2, 11, 4, 6, 8, 9, 10, 0, 12, 7, 0};
     // int nums[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
-    int nums[] = {2, 3, 5, 7, 8, 9};
+    // int nums[] = {2, 3, 5, 7, 8, 9};
     // int nums[] = {5, 3, 1, 2, 11, 4};
     quicksort(nums, 0, (sizeof(nums) / sizeof(nums[0])) - 1);
     printf("After sorting: ");
