@@ -25,27 +25,18 @@ def genchild(mat):
             children.append(temp)
     return children
 
-def hcs(start, end, iter = 1000):
-    minpath = []
+def hcs(start, end, iter=1000):
+    path = [start]
     for i in range(iter):
-        mat = start if len(minpath) == 0 else minpath.pop()
-        minpath.append(mat)
+        mat = path[-1]
         children = genchild(mat)
-        while True:
-            vals = []
-            for child in children:
-                vals.append((misplaced(child, end), child))
-            vals.sort()
-            i = 0
-            for i in range(len(minpath)):
-                if(vals[i][1] not in minpath):
-                    minpath.append(vals[i])
-                    break
-            if misplaced(minpath[-1][1], end) == 0:
-                break
-    return minpath
+        children.sort(key= lambda x: misplaced(x, end))
+        path.append(children[0])
+        if children[0] == end:
+            return path
+    return path
 
 
 mat = [[1,2,3], [0,4,6], [7,5,8]]
 ans = [[1,2,3], [4,5,6], [7,8,0]]
-hcs(mat, ans, 1)
+print(hcs(mat, ans, 100))
