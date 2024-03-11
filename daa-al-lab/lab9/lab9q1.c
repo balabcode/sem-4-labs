@@ -41,8 +41,8 @@ int horspool(char s[], char p[])
 
 int main()
 {
-    char s[] = "jim_saw_me_in_a_barber_shop";
-    char p[] = "barber";
+    char s[] = "this_is_a_demo_of_horspool_success";
+    char p[] = "demo";
     printf("\n%d\n", horspool(s, p));
     return 0;
 }
