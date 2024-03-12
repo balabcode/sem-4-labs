@@ -1,0 +1,201 @@
+1.  Write a procedure to display a message “Good Day to You”.
+set serveroutput on;
+create or replace
+procedure greeting is
+begin
+    dbms_output.put_line('Good Day to you');
+end;
+/
+
+begin
+greeting;
+end;
+/
+
+Procedure created.
+Good Day to you
+
+2.  Based on the University Database Schema in Lab 2, write a procedure which takes 
+    the dept_name as input parameter and lists all the instructors associated with the 
+    department as well as list all the courses offered by the department. Also, write an 
+    anonymous block with the procedure call.
+
+set serveroutput on;
+
+create or replace
+procedure insts(dname department.dept_name%TYPE) is
+cursor c is select i.name as name, c.course_id as cid from instructor i join course c on i.dept_name=c.dept_name where i.dept_name=dname;
+
+begin
+    for row in c
+    loop
+        dbms_output.put_line('Name: '||row.name||'  Course ID: '||row.cid);
+    end loop;
+end;
+/
+
+set serveroutput on;
+declare
+begin
+    insts('&DepartmentName');
+end;
+/
+
+Enter value for departmentname: Physics
+old   3:     insts('&DepartmentName');
+new   3:     insts('Physics');
+Name: Einstein  Course ID: PHY-101
+Name: Gold  Course ID: PHY-101
+
+PL/SQL procedure successfully completed.
+
+
+
+3.  Based on the University Database Schema in Lab 2, write a Pl/Sql block of code 
+    that lists the most popular course (highest number of students take it) for each of 
+    the departments. It should make use of a procedure course_popular which finds 
+    the most popular course in the given department.
+
+
+set serveroutput on;
+
+create or replace 
+procedure p(dname varchar) is
+  cid course.course_id%TYPE;
+  maxs number := 0;
+begin
+  for cr in (select course_id from course where dept_name = dname) loop
+    declare
+      cnt number;
+    begin
+      select count(distinct t.id)
+      into cnt
+      from takes t
+      where t.course_id = cr.course_id;
+      
+      if cnt > maxs then
+        maxs := cnt;
+        cid := cr.course_id;
+      end if;
+    end;
+  end loop;
+  dbms_output.put_line('Most popular course in department ' || dname || ' is ' || cid);
+end p;
+/
+
+declare
+  n varchar(20) := 'Finance';
+begin
+  p(n);
+end;
+/
+
+Most popular course in department Finance is FIN-201
+
+PL/SQL procedure successfully completed.
+
+
+
+4.  Based on the University Database Schema in Lab 2, write a procedure which takes 
+    the dept-name as input parameter and lists all the students associated with the 
+    department as well as list all the courses offered by the department. Also, write an 
+    anonymous block with the procedure call.
+
+set serveroutput on;
+create or replace
+procedure p(dname student.dept_name%TYPE) is
+cursor cStu (dname student.dept_name%type) is select id, name from student where dept_name = dname;
+cursor cCourse (dname student.dept_name%type) is select course_id, title from Course where dept_name = dname;
+begin
+    dbms_output.put_line('The students in the department ' || dname || ' are: ');
+    for srow in cStu(dname)
+    LOOP
+        dbms_output.put_line('ID: ' || srow.id || '  Name: ' || srow.name);
+    END LOOP;
+    dbms_output.put_line('The courses offered by the department ' || dname || ' are: ');
+    for crow in cCourse(dname)
+    LOOP
+        dbms_output.put_line('ID: ' || crow.course_id || '  Title: ' || crow.title);
+    END LOOP;
+end;
+/
+declare
+begin
+    p('Physics');
+end;
+/
+
+The students in the department Physics are:
+ID: 44553  Name: Peltier
+ID: 45678  Name: Levy
+ID: 70557  Name: Snow
+The courses offered by the department Physics are:
+ID: PHY-101  Title: Physical Principles
+
+
+
+5.  Write a function to return the Square of a given number and call it from an    
+    anonymous block.
+
+set serveroutput on;
+create or replace 
+function sqr(num number) return number as
+
+res number;
+begin
+    res := num * num;
+    return res;
+end;
+/
+set serveroutput on;
+declare
+begin
+    dbms_output.put_line(sqr(3));
+end;
+/
+
+9
+
+
+6.  Based on the University Database Schema in Lab 2, write a Pl/Sql block of code 
+    that lists the highest paid Instructor in each of the Department. It should make use 
+    of a function department_highest which returns the highest paid Instructor for the 
+    given branch.
+
+set serveroutput on;
+create or replace
+function department_highest(dname department.dept_name%TYPE) return instructor.salary%TYPE as
+
+sal instructor.salary%TYPE;
+begin
+    select max(salary) into sal
+    from instructor
+    where dept_name = dname;
+    return sal;
+end;
+/
+
+set serveroutput on;
+declare
+cursor c is select dept_name from department;
+sal instructor.salary%TYPE;
+begin
+    for row in c
+    LOOP
+        sal := department_highest(row.dept_name);
+        dbms_output.put_line('Max Salary of department ' || row.dept_name || ' is: ' || sal);
+    END LOOP;
+end;
+/
+
+Function created.
+
+Max Salary of department Biology is: 72000
+Max Salary of department Comp. Sci. is: 92000
+Max Salary of department Elec. Eng. is: 80000
+Max Salary of department Finance is: 90000
+Max Salary of department History is: 62000
+Max Salary of department Music is: 40000
+Max Salary of department Physics is: 95000
+
+PL/SQL procedure successfully completed.
