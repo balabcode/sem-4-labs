@@ -199,3 +199,90 @@ Max Salary of department Music is: 40000
 Max Salary of department Physics is: 95000
 
 PL/SQL procedure successfully completed.
+
+
+7. 	Based on the University Database Schema in Lab 2, create a package to include 
+	the following:
+	a) A named procedure to list the instructor_names of given department
+	b) A function which returns the max salary for the given department
+	c) Write a PL/SQL block to demonstrate the usage of above package components
+
+create or replace package pack as
+procedure inst_names(dept Instructor.dept_name%TYPE);
+function deptmax(dept Instructor.dept_name%TYPE) return Instructor.salary%TYPE;
+end pack;
+/
+
+create or replace package body pack as
+procedure inst_names(dept Instructor.dept_name%TYPE) is
+	cursor inst(dname Department.dept_name%TYPE) is select name from Instructor where 		dept_name=dname;
+begin
+	dbms_output.put_line('The instructors in '||dept||' department are= ');
+	for d in inst(dept) LOOP
+		dbms_output.put_line(d.name);
+	end LOOP;
+end inst_names;
+function deptmax(dept Instructor.dept_name%TYPE) return Instructor.salary%TYPE as
+	maxsal Instructor.salary%TYPE;
+begin
+	select max(salary) into maxsal from instructor where dept_name = dept;
+	return maxsal;
+end deptmax;
+end pack;
+/
+DECLARE
+    dept_name Instructor.dept_name%TYPE;
+    max_salary Instructor.salary%TYPE;
+BEGIN
+    dept_name:='&EnterADepartment';
+    pack.inst_names(dept_name);
+    max_salary := pack.deptmax(dept_name);
+    DBMS_OUTPUT.PUT_LINE('The maximum salary in ' || dept_name || ' department is: ' || max_salary);
+END;
+/
+Enter value for enteradepartment: Comp. Sci.
+The instructors in Comp. Sci. department are=
+Srinivasan
+Katz
+Brandt
+The maximum salary in Comp. Sci. department is: 92000
+
+
+8. 	Write a PL/SQL procedure to return simple and compound interest (OUT 
+	parameters) along with the Total Sum (IN OUT) i.e. Sum of Principle and Interest 
+	taking as input the principle, rate of interest and number of years (IN parameters). 
+	Call this procedure from an anonymous block
+	
+CREATE OR REPLACE PROCEDURE calculate_interest(
+    principal IN NUMBER,
+    rate IN NUMBER,
+    years IN NUMBER,
+    si OUT NUMBER,
+    ci OUT NUMBER,
+    total_sum IN OUT NUMBER
+)
+IS
+BEGIN
+    si := (principal * rate * years) / 100;
+    ci := principal * POWER((1 + rate / 100), years) - principal;
+    total_sum := principal + si;
+END calculate_interest;
+/
+
+DECLARE
+    principal NUMBER := 1000;
+    rate NUMBER := 5;
+    years NUMBER := 2;
+    si NUMBER;
+    ci NUMBER;
+    total_sum NUMBER := 0;
+BEGIN
+    calculate_interest(principal, rate, years, si, ci, total_sum);
+    DBMS_OUTPUT.PUT_LINE('Simple Interest: ' || si);
+    DBMS_OUTPUT.PUT_LINE('Compound Interest: ' || ci);
+    DBMS_OUTPUT.PUT_LINE('Total Sum: ' || total_sum);
+END;
+/
+Simple Interest: 100
+Compound Interest: 102.5
+Total Sum: 1100
