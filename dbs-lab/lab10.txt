@@ -1,0 +1,204 @@
+1.	Based on the University database Schema in Lab 2, write a row trigger that records 
+	along with the time any change made in the Takes (ID, course-id, sec-id, semester, 
+	year, grade) table in log_change_Takes (Time_Of_Change, ID, courseid,sec-id, 
+	semester, year, grade).
+
+create table log_change_takes (
+	time_of_change timestamp,
+	id varchar2(5),
+	course_id varchar2(8),
+	sec_id varchar2(8),
+	semester varchar2(6),
+	year number(4),
+	grade varchar2(2)
+);
+
+create or replace trigger takes_changes
+before insert or update or delete on takes
+for each row
+declare
+    temp timestamp;
+begin
+    select CURRENT_TIMESTAMP into temp from dual;
+    case
+        when inserting then
+            insert into log_change_takes values (temp, :NEW.id, :NEW.course_id, :NEW.sec_id, :NEW.semester, :NEW.year, :NEW.grade);
+        when updating then
+            insert into log_change_takes values (temp, :OLD.id, :OLD.course_id, :OLD.sec_id, :OLD.semester, :OLD.year, :OLD.grade);
+        when deleting then
+            insert into log_change_takes values (temp, :OLD.id, :OLD.course_id, :OLD.sec_id, :OLD.semester, :OLD.year, :OLD.grade);
+    end case;
+end;
+/
+
+delete from takes where id = 00128 and course_id = 'CS-101';
+select * from log_change_takes;
+
+TIME_OF_C ID    COURSE_I SEC_ID   SEMEST       YEAR GR
+--------- ----- -------- -------- ------ ---------- --
+13-MAR-24 00128 CS-101   1        Fall         2009 A
+
+
+
+2.	Based on the University database schema in Lab: 2, write a row trigger to insert 
+	the existing values of the Instructor (ID, name, dept-name, salary) table into a new 
+	table Old_ Data_Instructor (ID, name, dept-name, salary) when the salary table is 
+	updated.
+	
+create table old_data_instructor (
+	id varchar2(5),
+	name varchar2(20),
+	dept_name varchar2(20),
+	salary number(8,2)
+);
+
+create or replace trigger instructor_salary_update
+before update of salary on instructor
+for each row
+declare
+    temp timestamp;
+begin
+    select CURRENT_TIMESTAMP into temp from dual;
+    
+    if :OLD.salary <> :NEW.salary then
+        insert into old_data_instructor values (:OLD.ID, :OLD.name, :OLD.dept_name, :OLD.salary);
+    end if;
+end;
+/
+
+update instructor set salary = 69000 where name = 'Srinivasan';
+select * from old_data_instructor;
+
+ID    NAME                 DEPT_NAME                SALARY
+----- -------------------- -------------------- ----------
+10101 Srinivasan           Comp. Sci.                65000
+
+
+
+3.	Based on the University Schema, write a database trigger on Instructor that checks 
+	the following:
+	 The name of the instructor is a valid name containing only alphabets.
+	 The salary of an instructor is not zero and is positive
+	 The salary does not exceed the budget of the department to which the 
+	instructor belongs.
+
+create or replace trigger check_instructor_details
+before insert or update on instructor
+for each row
+declare
+    budg number;
+begin
+    if not regexp_like(:NEW.name, '^[A-Za-z ]+$') then
+        raise_application_error(-20001, 'Invalid name format. Name should contain only alphabets.');
+    end if;
+
+    if :NEW.salary <= 0 then
+        raise_application_error(-20002, 'Salary must be a positive value.');
+    end if;
+
+    select budget into budg from department where dept_name = :NEW.dept_name;    
+    if :NEW.salary > budg then
+        raise_application_error(-20003, 'Salary exceeds department budget.');
+    end if;
+end;
+/
+
+update instructor set name = 'Katz1' where name = 'Katz';
+update instructor set name = 'Katz1' where name = 'Katz'
+       *
+ERROR at line 1:
+ORA-20001: Invalid name format. Name should contain only alphabets.
+ORA-06512: at "A79.CHECK_INSTRUCTOR_DETAILS", line 5
+ORA-04088: error during execution of trigger 'A79.CHECK_INSTRUCTOR_DETAILS'
+
+4.	Create a transparent audit system for a table Client_master (client_no, name, 
+	address, Bal_due). The system must keep track of the records that are being 
+	deleted or updated. The functionality being when a record is deleted or modified 
+	the original record details and the date of operation are stored in the auditclient 
+	(client_no, name, bal_due, operation, userid, opdate) table, then the delete or 
+	update is allowed to go through.
+
+create table client_master(
+	num numeric(5),
+	name varchar2(20),
+	address varchar2(50),
+	bal_due numeric(5)
+);
+
+create table auditclient(
+	num numeric(5),
+	name varchar2(20),
+	bal_due numeric(5),
+	operation varchar2(10),
+	userid numeric(3),
+	opdate timestamp
+);
+
+INSERT INTO client_master VALUES (1, 'John Doe', '123 Main Street, City A', 100);
+INSERT INTO client_master VALUES (2, 'Jane Smith', '456 Elm Avenue, City B', 50);
+INSERT INTO client_master VALUES (3, 'Michael Johnson', '789 Oak Road, City C', 200);
+INSERT INTO client_master VALUES (4, 'Sarah Brown', '321 Pine Lane, City D', 75);
+INSERT INTO client_master VALUES (5, 'David Lee', '654 Maple Drive, City E', 150);
+INSERT INTO client_master VALUES (6, 'Emily Davis', '987 Cedar Court, City F', 120);
+INSERT INTO client_master VALUES (7, 'Robert Wilson', '135 Walnut Street, City G', 80);
+INSERT INTO client_master VALUES (8, 'Laura Garcia', '468 Birch Avenue, City H', 90);
+INSERT INTO client_master VALUES (9, 'Daniel Martinez', '753 Spruce Boulevard, City I', 110);
+INSERT INTO client_master VALUES (10, 'Jessica Rodriguez', '159 Ash Way, City J', 70);
+
+create or replace trigger check_client_master
+before update or delete on client_master
+for each row
+declare
+    temp timestamp;
+begin
+    select CURRENT_TIMESTAMP into temp from dual;
+	CASE
+	when updating then
+		insert into auditclient values (:OLD.num, :OLD.name, :OLD.bal_due, 'UPDATE', 001, temp);
+	when deleting then
+		insert into auditclient values (:OLD.num, :OLD.name, :OLD.bal_due, 'DELETE', 001, temp);
+	end CASE;
+end;
+/
+
+delete from client_master where num = 9;
+ select * from auditclient;
+
+       NUM NAME                    BAL_DUE OPERATION      USERID
+---------- -------------------- ---------- ---------- ----------
+OPDATE
+---------------------------------------------------------------------------
+         9 Daniel Martinez             110 DELETE              1
+13-MAR-24 10.22.30.939000 AM
+
+
+
+5.	Based on the University database Schema in Lab 2, create a view Advisor_Student 
+	which is a natural join on Advisor, Student and Instructor tables. Create an 
+	INSTEAD OF trigger on Advisor_Student to enable the user to delete the 
+	corresponding entries in Advisor table.
+
+create or replace view advisor_student as select * from student join advisor on student.id = advisor.s_id;
+
+create or replace trigger advisor_del
+instead of delete on advisor_student
+for each row
+begin
+	delete from advisor where i_id = :OLD.i_id and s_id = :OLD.s_id;
+end;
+/
+
+delete from advisor_student where name = 'Zhang';
+
+ID    NAME                 DEPT_NAME              TOT_CRED S_ID  I_ID
+----- -------------------- -------------------- ---------- ----- -----
+12345 Shankar              Comp. Sci.                   32 12345 10101
+23121 Chavez               Finance                     110 23121 76543
+44553 Peltier              Physics                      56 44553 22222
+45678 Levy                 Physics                      46 45678 22222
+76543 Brown                Comp. Sci.                   58 76543 45565
+76653 Aoi                  Elec. Eng.                   60 76653 98345
+98765 Bourikas             Elec. Eng.                   98 98765 98345
+98988 Tanaka               Biology                     120 98988 76766
+
+8 rows selected.

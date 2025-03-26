@@ -1,0 +1,167 @@
+create table instructor (
+	id varchar(5) primary key,
+	name varchar(20),
+	dept_name varchar(10),
+	salary numeric(10)
+);
+
+create table salary_raise (
+	inst_id varchar(5) references instructor(id),
+	raise_date date,
+	raise_amt numeric(10)
+);
+
+insert into instructor values('1234', 'Rajesh', 'CSE', 12345);
+insert into instructor values('1235', 'Ramesh', 'CSE', 12345);
+insert into instructor values('1236', 'Santosh', 'CSE', 12345);
+insert into instructor values('1237', 'Sandeep', 'ECE', 12345);
+insert into instructor values('1238', 'Anirudh', 'MECH', 12345);
+insert into instructor values('1239', 'Seema', 'ECE', 12345);
+insert into instructor values('1240', 'Priya', 'ICT', 12345);
+
+1.	The HRD manager has decided to raise the salary of all the Instructors in a given 
+	department number by 5%. Whenever, any such raise is given to the instructor, a 
+	record for the same is maintained in the salary_raise table. It includes the Instuctor 
+	Id, 7	the date when the raise was given and the actual raise amount. Write a PL/SQL 
+	block to update the salary of each Instructor and insert a record in the salary_raise 
+	table.
+	salary_raise(Instructor_Id, Raise_date, Raise_amt)
+
+> 
+set serveroutput on
+declare
+cursor c1(dname instructor.dept_name%type) is (select * from instructor where dept_name = dname) for update;
+cursor c2 is select * from salary_raise for update;
+tempdept varchar(10);
+
+begin
+	tempdept := '&dept_name';
+	FOR inst in c1(tempdept) LOOP	
+		insert into salary_raise values (inst.id, '28 FEB 2024', 0.05*inst.salary);
+		update instructor set salary = 1.05 * salary where current of c1;
+	END LOOP;
+	
+	FOR sal in c2 LOOP
+		dbms_output.put_line('Updated Salaries: '||sal.inst_id||'      '||sal.raise_amt);
+	END LOOP;
+end;
+/
+
+
+2.	Write a PL/SQL block that will display the ID, name, dept_name and tot_cred of 
+	the first 10 students with lowest total credit.
+
+>
+set serveroutput on;
+declare
+cursor c is select * from student order by (student.tot_cred);
+begin
+	FOR stu in c LOOP
+		IF c%rowcount <= 10 THEN
+		dbms_output.put_line('ID: ' || stu.id || '    ' || 'NAME: ' || stu.name || '    ' || 'DEPT: ' || stu.dept_name || '    ' ||  'CRED: '  || stu.tot_cred);
+		END IF;
+	END LOOP;
+end;
+/
+ID: 70557    NAME: Snow    DEPT: Physics    CRED: 0
+ID: 12345    NAME: Shankar    DEPT: Comp. Sci.    CRED: 32
+ID: 55739    NAME: Sanchez    DEPT: Music    CRED: 38
+ID: 45678    NAME: Levy    DEPT: Physics    CRED: 46
+ID: 54321    NAME: Williams    DEPT: Comp. Sci.    CRED: 54
+ID: 44553    NAME: Peltier    DEPT: Physics    CRED: 56
+ID: 76543    NAME: Brown    DEPT: Comp. Sci.    CRED: 58
+ID: 76653    NAME: Aoi    DEPT: Elec. Eng.    CRED: 60
+ID: 19991    NAME: Brandt    DEPT: History    CRED: 80
+ID: 98765    NAME: Bourikas    DEPT: Elec. Eng.    CRED: 98
+
+PL/SQL procedure successfully completed.
+
+
+
+
+3. 	Print the Course details and the total number of students registered for each course 
+	along with the course details - (Course-id, title, dept-name, credits, 
+	instructor_name, building, room-number, time-slot-id, tot_student_no )
+>
+set serveroutput on;
+declare 
+cursor c(ctemp course.course_id%TYPE) is select * from section where course_id = ctemp;
+cursor ccount is select count(course_id) COURSECOUNT, course_id from takes group by course_id;
+cursor totstu(ctemp course.course_id%TYPE) is select count(id) TOTSTUNO from takes t join student s on t.id = s.id where t.course_id = ctemp;
+cursor coursedet(ctemp course.course_id%TYPE) is select * from course where course.course_id = ctemp;
+begin
+	FOR ccount_row in ccount LOOP
+		FOR c_row in c(ccount_row.course_id) LOOP
+			FOR tot_stu_row in totstu(ccount_row.course_id) LOOP
+				FOR coursedet_row in coursedet(ccount_row.course_id) LOOP
+					dbms_output.put_line('=========================================');
+					dbms_output.put_line('COURSEID: ' || ccount_row.course_id);
+					dbms_output.put_line('COURSETITLE: ' || coursedet_row.title);
+					dbms_output.put_line('COURSE COUNT: ' || ccount_row.COURSECOUNT);
+					dbms_output.put_line('DEPT: ' || coursedet_row.dept_name);
+					dbms_output.put_line('CREDITS: ' || coursedet_row.credits);
+					dbms_output.put_line('BUILDING: ' || c_row.building);
+					dbms_output.put_line('ROOM: ' || c_row.room_number);
+					dbms_output.put_line('TIME SLOT: ' || c_row.time_slot_id);
+					dbms_output.put_line('TOTAL STUDENTS: ' || tot_stu_row.TOTSTUNO);
+					dbms_output.put_line('=========================================');
+				END LOOP;
+			END LOOP;
+		END LOOP;
+	END LOOP;
+end;`	
+/
+
+
+
+4.  Find all students who take the course with Course-id: CS101 and if he/ she has 
+	less than 30 total credit (tot-cred), deregister the student from that course. (Delete 
+	the entry in Takes table)
+
+>
+set serveroutput on;
+declare
+cursor c(cid course.course_id%TYPE) is select s.id as SID, s.tot_cred as TOTCRED from takes t join student s on t.id = s.id where t.course_id = cid;
+
+begin
+	FOR crow in c('CS-101') LOOP
+		IF crow.totcred < 30 THEN
+			delete from takes where takes.id = crow.sid and takes.course_id = 'CS-101';
+		END IF;
+	END LOOP;
+end;
+/
+
+
+
+
+
+5.	Alter StudentTable(refer Lab No. 8 Exercise) by resetting column LetterGrade to 
+	F. Then write a PL/SQL block to update the table by mapping GPA to the 
+	corresponding letter grade for each student.
+>
+
+update student set lettergrade = 'F';
+
+set serveroutput on;
+declare
+cursor c is select * from student for update;
+tempgrade student.lettergrade%TYPE;
+begin
+	FOR crow in c LOOP
+		IF crow.gpa between 0 and 4 THEN tempgrade := 'F' ;
+		ELSIF crow.gpa between 4 and 5 THEN tempgrade := 'E';
+		ELSIF crow.gpa between 5 and 6 THEN tempgrade := 'D';
+		ELSIF crow.gpa between 6 and 7 THEN tempgrade := 'C';
+		ELSIF crow.gpa between 7 and 8 THEN tempgrade := 'B';
+		ELSIF crow.gpa between 8 and 9 THEN tempgrade := 'A';
+		ELSIF crow.gpa between 9 and 10 THEN tempgrade := 'A+';
+		ELSE dbms_output.put_line('Invalid GPA');
+		END IF;
+		update student set lettergrade = tempgrade where current of c;
+	END LOOP;
+end;
+/
+
+
+6. 

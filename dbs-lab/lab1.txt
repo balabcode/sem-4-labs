@@ -1,0 +1,47 @@
+1) Create a table employee with columns emp_no, emp_name, emp_address
+2) Insert atleast 5 employees information
+3) Display names of all employees
+4) Display all employees coming from Manipal
+5) Add a column named salary to the employee table
+6) Assign the salary for all the employees
+7) Display the structure of the table
+8) Delete all the employees who are resding at Mangalore
+9) Rename table employee to employee1
+10) Drop table employee1
+
+1.
+create table employee(emp_no numeric(4), emp_name varchar(20), emp_address varchar(10));
+
+2.
+insert into employee values(123, 'PKG', 'Manipal');
+insert into employee values(456, 'SDK', 'Mangalore');
+insert into employee values(789, 'Ishan', 'Karkala');
+insert into employee values(246, 'Keshav', 'Mangalore');
+insert into employee values(680, 'Ankur', 'Manipal');
+
+3.
+select emp_name from employee;
+
+4.
+select emp_name from employee where emp_address='Manipal';
+
+5.
+alter table employee add salary numeric(7,2);
+
+6.
+update employee set salary=30000.20 where emp_address='Manipal';
+update employee set salary=25000.87 where emp_address='Karkala';
+update employee set salary=32000.50 where emp_address='Mangalore';
+
+7.
+desc employee;
+
+8.
+delete from employee where emp_address='Mangalore';
+
+9.
+rename employee to employee1;
+
+10.
+drop employee1;
+

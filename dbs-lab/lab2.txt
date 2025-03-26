@@ -1,0 +1,306 @@
+1.
+create table Employee(
+	EmpNo numeric(3), 
+	EmpName varchar(20) not null, 
+	Gender varchar(1) not null, 
+	Salary numeric(10) not null, 
+	Address varchar(20) not null, 
+	DNo numeric(3),
+	check(Gender in ('M','F'))
+);
+
+2.
+create table department1(
+	DeptNo numeric(10) primary key,
+	DeptName varchar(10) unique,
+	Location varchar(10)
+);
+
+
+
+3. 
+alter table Employee add constraint FK_dept foreign key(DNo) references Department(DeptNo);
+
+4.
+insert into department1 values(1, 'CSE', 'AB5');
+insert into department1 values(2, 'ICT', 'AB5');
+insert into department1 values(3, 'ICE', 'AB5');
+insert into department1 values(4, 'MECH', 'AB1');
+
+insert into employee values(1, 'Ramesh', 'M', 1234, 'FacultyBlock', 1);
+insert into employee values(2, 'Rajesh', 'M', 1235, 'FacultyBlock', 2);
+insert into employee values(3, 'Sushmita', 'F', 1236, 'FacultyBlock', 1);
+
+5.
+insert into department values(3, 'CSE', 'AB5');
+insert into department values(4, 'AI', 'AB5');
+
+insert into employee values(4, 'Aryan', 'M', 123456, 'FacultyBlock', 5);
+insert into employee values(3, 'Ashutosh', 'M', 12345, 'FacultyBlock', 1);
+
+6.
+delete from department where deptno=1;
+delete from department where deptno=2;
+update employee set dno=5 where dno=2;
+update employee set gender='S' where gender='F';
+update employee set salary=null where salary=1234;
+
+7.
+alter table employee drop constraint FK_dept;
+alter table Employee add constraint FK_dept foreign key(DNo) references Department(DeptNo) on delete cascade;
+
+8.
+alter table employee modify salary default 10000;
+insert into employee values(5, 'Test', 'M', , 'FacultyBlock', 1);
+
+------
+
+
+9.
+select name,dept_name from student;
+
+10.
+select * from instructor where dept_name='Comp. Sci.';
+
+11.
+select * from course where course.credits>3;
+
+12.
+select course.course_id, course.title from course, takes where takes.ID='12345' and takes.course_ID = course.course_ID;
+
+13.
+select * from instructor where instructor.salary>40000 and instructor.salary<90000;
+
+14.Display the IDs of all instructors who have taught atleast one course
+select distinct(i.id) from teaches t1, instructor i where t1.id = i.id;
+ID
+-----
+22222
+12121
+76766
+83821
+10101
+15151
+32343
+45565
+98345
+
+9 rows selected.
+
+
+15. Find the student names, course names, and the year, for all students those who have 
+attended classes in room-number 100.
+> select st.name, c.title, sec.year from student st, course c, section sec, takes t where sec.course_id = c.course_id and sec.course_id = t.course_id and st.id = t.id and sec.sec_id = t.sec_id and sec.room_number=100;
+NAME                 TITLE
+-------------------- --------------------------------------------------
+      YEAR
+----------
+Peltier              Physical Principles
+      2009
+
+Levy                 Image Processing
+      2010
+
+
+
+
+16. For all students who have opted courses in 2010, find their names and course id’s 
+with the attribute course title replaced by c-name
+> select st.name, t.course_id as c_name from student st, takes t where st.id=t.id and year=2010;
+NAME                 C_NAME
+-------------------- --------
+Shankar              CS-315
+Brandt               HIS-351
+Chavez               FIN-201
+Levy                 CS-319
+Levy                 CS-101
+Sanchez              MU-199
+Brown                CS-319
+Bourikas             CS-315
+Tanaka               BIO-301
+
+9 rows selected.
+
+
+17. Find the names of all instructors whose salary is greater than the salary of at least 
+one instructor of CSE department and salary replaced by inst-salary.
+> select distinct(i1.name), i1.salary as inst_salary from instructor i1, instructor i2 where i1.salary > i2.salary and i2.dept_name='Comp. Sci.';
+
+NAME                 INST_SALARY
+-------------------- -----------
+Crick                      72000
+Katz                       75000
+Gold                       87000
+Einstein                   95000
+Wu                         90000
+Brandt                     92000
+Singh                      80000
+Kim                        80000
+
+8 rows selected.
+
+
+18. Find the names of all instructors whose department name includes the substring 
+‘ch’
+> select name from instructor where dept_name like '%Co%';
+NAME
+--------------------
+Srinivasan
+Katz
+Brandt
+
+
+19.  List the student names along with the length of the student names.
+> select name, length(name) from student;
+NAME                 LENGTH(NAME)
+-------------------- ------------
+Zhang                           5
+Shankar                         7
+Brandt                          6
+Chavez                          6
+Peltier                         7
+Levy                            4
+Williams                        8
+Sanchez                         7
+Snow                            4
+Brown                           5
+Aoi                             3
+
+NAME                 LENGTH(NAME)
+-------------------- ------------
+Bourikas                        8
+Tanaka                          6
+
+13 rows selected.
+
+
+20. List the department names and 3 characters from 3rd position of each department name
+> select dept_name, substr(dept_name,3,3) from department;
+
+DEPT_NAME            SUB
+-------------------- ---
+Biology              olo
+Comp. Sci.           mp.
+Elec. Eng.           ec.
+Finance              nan
+History              sto
+Music                sic
+Physics              ysi
+
+7 rows selected.
+
+
+21. List the instructor names in upper case.
+> select upper(name) from instructor;
+UPPER(NAME)
+--------------------
+SRINIVASAN
+WU
+MOZART
+EINSTEIN
+EL SAID
+GOLD
+KATZ
+CALIFIERI
+SINGH
+CRICK
+BRANDT
+
+UPPER(NAME)
+--------------------
+KIM
+
+12 rows selected.
+
+
+22. Replace NULL with value1(say 0) for a column in any of the table
+> select nvl(grade, '0') from takes;
+
+NV
+--
+A
+A-
+C
+A
+A
+A
+B
+C+
+B-
+F
+B+
+
+NV
+--
+B
+A-
+B+
+A-
+A
+A
+C
+C-
+B
+A
+0
+
+22 rows selected.
+
+
+
+23.Display the salary and salary/3 rounded to nearest hundred from Instructor.
+> select salary, round(salary/3, -2) from instructor;
+
+    SALARY ROUND(SALARY/3,-2)
+---------- ------------------
+     65000              21700
+     90000              30000
+     40000              13300
+     95000              31700
+     60000              20000
+     87000              29000
+     75000              25000
+     62000              20700
+     80000              26700
+     72000              24000
+     92000              30700
+
+    SALARY ROUND(SALARY/3,-2)
+---------- ------------------
+     80000              26700
+
+12 rows selected.
+
+-------
+
+24.  Display the birth date of all the employees in the following format
+ ‘DD-MON-YYYY’
+> select to_char(dob, 'DD-MON-YYYY') from employee;
+TO_CHAR(DOB
+-----------
+12-JUN-2019
+16-JUL-2012
+12-JUN-2019
+
+ ‘DD-MON-YY’
+> select to_char(dob, 'DD-MON-YY') from employee;
+TO_CHAR(DOB
+-----------
+12-JUN-19
+16-JUL-12
+12-JUN-19
+ ‘DD-MM-YY’
+> select to_char(dob, 'DD-MM-YY') from employee;
+TO_CHAR(DOB
+-----------
+12-06-19
+16-07-12
+12-06-19
+
+25. List the employee names and the year (fully spelled out) in which they are born
+ ‘YEAR’
+> select empname, to_char(dob, 'YEAR') from employee;
+ ‘Year’
+> select empname, to_char(dob, 'Year') from employee;
+ ‘year
+> select empname, to_char(dob, 'year') from employee;
